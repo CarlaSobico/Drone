@@ -1,3 +1,21 @@
+
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+
+//Declaremos los pines CE y el CSN
+#define CE_PIN 9
+#define CSN_PIN 10
+
+#define MAX_DATOS 11
+#define HEADER_1 0x01
+#define HEADER_2 0x03
+
+byte direccion[5] ={'c','a','n','a','l'};
+
+
+//creamos el objeto radio (NRF24L01)
+RF24 radio(CE_PIN, CSN_PIN);
 /*
   AnalogReadSerial
   Reads an analog input on pin 0, prints the result to the serial monitor.
@@ -8,9 +26,6 @@
 */
 
 /* the setup routine runs once when you press reset:*/
-#define MAX_DATOS 11
-#define HEADER_1 0x01
-#define HEADER_2 0x03
 
   
   uint8_t RX;
@@ -28,9 +43,13 @@
   
 void setup() {
   // initialize serial communication at 9600 bits per second:
-
-  Serial.begin(9600);
-  
+//inicializamos el NRF24L01 
+  radio.begin();
+  //inicializamos el puerto serie
+  Serial.begin(9600); 
+ 
+//Abrimos un canal de escritura
+ radio.openWritingPipe(direccion);
 }
 
 // the loop routine runs over and over again forever:
@@ -58,10 +77,17 @@ void loop() {
   data[9] = ELEV;
   data[10] = XORChecksum8(data,MAX_DATOS-1);//mando menos uno porque el check sum es el dato 10
 
-  //Serial.print(data[10]);
-
-
-  delay(300);//para probar el dato en pantalla
+  bool ok = radio.write(datos, sizeof(datos));
+  //reportamos por el puerto serial los datos enviados 
+  if(ok)
+  {
+     Serial.println("Datos enviados"); 
+  }
+  else
+  {
+     Serial.println("no se ha podido enviar");
+  }
+  delay(1000);
 }
  
 uint8_t XORChecksum8(byte *data, size_t dataLength)

@@ -5,7 +5,8 @@
 //Declaremos los pines CE y el CSN
 #define CE_PIN 9
 #define CSN_PIN 10
- 
+#define MAX_DATOS 11
+
 //Variable con la dirección del canal que se va a leer
 byte direccion[5] ={'c','a','n','a','l'}; 
 
@@ -13,7 +14,7 @@ byte direccion[5] ={'c','a','n','a','l'};
 RF24 radio(CE_PIN, CSN_PIN);
 
 //vector para los datos recibidos
-float datos[3];
+  uint8_t data[MAX_DATOS];
 
 void setup()
 {
@@ -31,22 +32,22 @@ void setup()
 }
  
 void loop() {
- uint8_t numero_canal;
+ //uint8_t numero_canal;
  //if ( radio.available(&numero_canal) )
  if ( radio.available() )
  {    
      //Leemos los datos y los guardamos en la variable datos[]
-     radio.read(datos,sizeof(datos));
+     radio.read(data,sizeof(uint8_t)*MAX_DATOS);
      
      //reportamos por el puerto serial los datos recibidos
      Serial.print("Dato0= " );
-     Serial.print(datos[0]);
+     Serial.print(data[0]);
      Serial.print(" V, ");
      Serial.print("Dato1= " );
-     Serial.print(datos[1]);
+     Serial.print(data[1]);
      Serial.print(" ms, ");
      Serial.print("Dato2= " );
-     Serial.println(datos[2]);
+     Serial.println(data[2]);
  }
  else
  {
